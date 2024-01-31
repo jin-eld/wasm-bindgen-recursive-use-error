@@ -71,14 +71,14 @@ impl Dummy {
         });
     }
 
-    pub async fn work(&mut self) {
+    pub async fn work(&self) {
         // has to be async, because it calls some async stuff in the real world,
         // not sure if it has any influence
         let mut val: u8 = 0;
         let stop = self.stop.clone();
         loop {
             val += 1;
-            self.counter = val;
+            //self.counter = val;
             let _ = self.cmd_sender.send(val);
             if val == u8::MAX {
                 console_log!("exiting worker loop");
