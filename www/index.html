@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>                                                                          
+<head>                                                                          
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type"/>
+</head>
+<body>
+    <script type="module">
+        import init, { Dummy } from "./wasmcrash.js";
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        async function main() {
+            await init();
+            try {
+                const dummy = await new Dummy((value) => {
+                            console.log("JS callback triggered: ", value);
+                        });
+                setTimeout(function(){ dummy.abort_work(); }, 3000);
+                await dummy.work();
+                sleep(15000);
+                console.log("the end");
+            } catch (err) {
+                console.log(err);
+            }
+        }
+
+        main();
+    </script>
+</body>
+</html>
+

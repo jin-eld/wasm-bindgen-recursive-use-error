@@ -1,0 +1,18 @@
+[package]
+name = "wasmcrash"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.75.0"
+publish = false
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+console_error_panic_hook = "0.1"
+tokio = { version = "1", features = [ "sync" ] }
+wasm-bindgen = { version = "0.2" }
+wasm-bindgen-futures = "0.4.40"
+web-sys = { version = "0.3.67", features = [ "console" ] }
+gloo-timers = { version = "0.3", features = [ "futures" ] }
+
