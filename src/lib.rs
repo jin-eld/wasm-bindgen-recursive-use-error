@@ -1,6 +1,6 @@
 use gloo_timers::future::TimeoutFuture;
 use std::sync::atomic::Ordering;
-use std::sync::{atomic::AtomicBool, Arc};
+use std::sync::{atomic::AtomicBool, Arc, Mutex};
 use tokio::sync::broadcast;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::spawn_local;
@@ -25,7 +25,7 @@ pub struct Dummy {
     cmd_sender: broadcast::Sender<u8>,
     //another: Another,
     stop: Arc<AtomicBool>,
-    counter: u8,
+    counter: Arc<Mutex<u8>>,
 }
 
 #[wasm_bindgen]
@@ -67,7 +67,7 @@ impl Dummy {
         return Ok(Dummy {
             cmd_sender: cmd_sender,
             stop: stop,
-            counter: 0,
+            counter: Arc::new(Mutex::new(0)),
         });
     }
 
@@ -78,7 +78,13 @@ impl Dummy {
         let stop = self.stop.clone();
         loop {
             val += 1;
-            //self.counter = val;
+
+            // try to lock the counter and see if that helps: it does, but
+            // only if we also change &mut self to &self
+            let mut locked = self.counter.lock().unwrap();
+            *locked = val;
+            drop(locked);
+
             let _ = self.cmd_sender.send(val);
             if val == u8::MAX {
                 console_log!("exiting worker loop");
